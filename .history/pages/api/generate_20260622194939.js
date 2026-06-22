@@ -42,42 +42,36 @@ ${context ? `- Extra context: ${context}` : ""}
 Write a short LinkedIn DM that doesn't sound like a pitch. Keep it under 400 characters.`;
 
   const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-
   try {
    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "google/gemma-4-26b-a4b-it:free",
-          messages: [
-            {
-              role: "user",
-              content: fullPrompt
-            }
-          ],
-          temperature: 0.8,
-          max_tokens: 800
-        })
-      }
-    );
+  "https://openrouter.ai/api/v1/chat/completions",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "openrouter/free",
+      messages: [
+        {
+          role: "user",
+          content: fullPrompt
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 800
+    })
+  }
+);
 
     if (!response.ok) {
       const err = await response.json();
-      console.log(JSON.stringify(err, null, 2));
-      return res.status(response.status).json(err);
+      return res.status(500).json({ error: err.error?.message || "API error" });
     }
 
-   const data = await response.json();
-
-  const text =
-     data.choices?.[0]?.message?.content ||
-    "No response generated";
-
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     return res.status(200).json({ result: text });
   } catch (err) {
     console.error(err);
