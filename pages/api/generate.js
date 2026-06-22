@@ -69,7 +69,9 @@ Write a short LinkedIn DM that doesn't sound like a pitch. Keep it under 400 cha
     if (!response.ok) {
       const err = await response.json();
       console.log(JSON.stringify(err, null, 2));
-      return res.status(response.status).json(err);
+      return res.status(response.status).json({
+      error: JSON.stringify(err)
+      });
     }
 
    const data = await response.json();
