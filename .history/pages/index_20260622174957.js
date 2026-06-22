@@ -241,9 +241,9 @@ export default function Home() {
           <div style={styles.footerInner}>
             <div style={styles.footerCredit}>
               <span>Built by</span>
-              <strong style={{ margin: "0 4px" }}>Yamini Negi</strong>
+              <strong style={{ margin: "0 4px" }}>Your Full Name</strong>
               <span>·</span>
-              <a href="ynegi.15official@gmail.com" style={styles.footerEmail}>your@email.com</a>
+              <a href="mailto:your@email.com" style={styles.footerEmail}>your@email.com</a>
             </div>
             <a
               href="https://digitalheroesco.com"

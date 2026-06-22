@@ -1,13 +1,19 @@
-cat > /home/claude/cold-email-tool/pages/api/generate.js << 'EOF'
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   const {
-    type, yourName, yourRole, yourCompany,
-    prospectName, prospectRole, prospectCompany,
-    goal, tone, context,
+    type,
+    yourName,
+    yourRole,
+    yourCompany,
+    prospectName,
+    prospectRole,
+    prospectCompany,
+    goal,
+    tone,
+    context,
   } = req.body;
 
   if (!yourName || !prospectName || !goal) {
@@ -42,20 +48,21 @@ ${context ? `- Extra context: ${context}` : ""}
 
 Write a short LinkedIn DM that doesn't sound like a pitch. Keep it under 400 characters.`;
 
-  const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: { maxOutputTokens: 1024, temperature: 0.8 },
-        }),
-      }
-    );
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      }),
+    });
 
     if (!response.ok) {
       const err = await response.json();
@@ -63,7 +70,7 @@ Write a short LinkedIn DM that doesn't sound like a pitch. Keep it under 400 cha
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const text = data.content?.[0]?.text || "";
     return res.status(200).json({ result: text });
   } catch (err) {
     console.error(err);
