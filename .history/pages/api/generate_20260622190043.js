@@ -1,3 +1,4 @@
+cat > /home/claude/cold-email-tool/pages/api/generate.js << 'EOF'
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -42,6 +43,8 @@ ${context ? `- Extra context: ${context}` : ""}
 Write a short LinkedIn DM that doesn't sound like a pitch. Keep it under 400 characters.`;
 
   const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+
+  console.log("Using Gemini API");
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
